@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1382150a152d824cbad32c41f4e0ffd, type: 3}
+  m_Name: 4_espada
+  m_EditorClassIdentifier: Assembly-CSharp::CrearCarta
+  nombre: 4_espada
+  palo: espada
+  numero: 4
+  valorTruco: 1
+  valorEnvido: 4
+  arteCarta: {fileID: 1821245231916787116, guid: 9c3b3c2bae69b1245a65c97629bf4d6c, type: 3}
