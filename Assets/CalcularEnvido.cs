@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,11 +19,13 @@ public class CalcularEnvido : MonoBehaviour
 
     private void AlCalcularEnvido()
     {
-        
+        GameManager.Instance.ProcesarCalculoEnvidoRpc();
     }
-    private void DibujarEnvido(int puntos) 
+    public async Task DibujarEnvido(int puntos) 
     { 
         textoEnvido.text = puntos.ToString();
+        await Task.Delay(5000);
+        textoEnvido.text = "";
     }
 
 }

@@ -12,12 +12,12 @@ public class CrearCarta : ScriptableObject
     public Sprite arteCarta;
 
     public int CalcularEnvidoPieza()
-    {
+    { 
         switch (numero)
         {
             case 2:
                 return 10;
-            case 4: 
+            case 4:
                 return 9;
             case 5:
                 return 8;
@@ -28,4 +28,27 @@ public class CrearCarta : ScriptableObject
         }
         return 0;
     }
+    public int CalcularTrucoPieza()
+    {
+        switch (numero)
+        {
+            case 2:
+                return 19;
+                
+            case 4:
+                return 18;
+                
+            case 5:
+                return 17;
+                
+            case 10:
+                return 15;
+                
+            case 11:
+                return 16;
+                
+        }
+        return 0;
+    }
 }
+

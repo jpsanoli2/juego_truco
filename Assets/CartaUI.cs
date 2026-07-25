@@ -10,17 +10,11 @@ public class CartaUI : MonoBehaviour
     private void Awake()
     {
         boton = GetComponent<Button>();
-        // Le decimos al botón que cuando lo clickeen ejecute nuestra función
         boton.onClick.AddListener(AlClickearCarta);
     }
 
     private void AlClickearCarta()
     {
-        if (string.IsNullOrEmpty(nombreCartaAsignada)) return;
-
-        Debug.Log($"Clické la carta: {nombreCartaAsignada}. Avisando al GameManager...");
-
-        // Buscamos el GameManager y le pasamos el nombre de la carta que queremos jugar
-        //GameManager.Instance.IntentarJugarCartaServerRpc(nombreCartaAsignada);
+        GameManager.Instance.IntentarJugarCartaRpc(nombreCartaAsignada);
     }
 }

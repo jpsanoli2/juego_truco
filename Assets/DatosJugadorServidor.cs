@@ -6,7 +6,7 @@ public class DatosJugadorServidor
 {
     public ulong clientId;
     public List<string> manoActual = new List<string>();
-    public int puntosEnvidoOFlor;
+    //public int puntosEnvidoOFlor = 0;
     public bool tieneFlor = false;
     public bool yaJugoEstaMano;
 
@@ -17,33 +17,36 @@ public class DatosJugadorServidor
     public DatosJugadorServidor(ulong id)
     {
         this.clientId = id;
+        this.gameManager = GameManager.Instance;
     }
-    public void tieneFlorFunc()
+    public void tieneFlorFunc() 
     {
-        string palo = gameManager.cartaMuestra.palo;
-
+        tieneFlor = false;
         CrearCarta carta1 = gameManager.BuscarCartaPorNombre(manoActual[0]);
         CrearCarta carta2 = gameManager.BuscarCartaPorNombre(manoActual[1]);
         CrearCarta carta3 = gameManager.BuscarCartaPorNombre(manoActual[2]);
 
-        if (carta1.palo == palo && carta2.palo == palo && carta3.palo == palo)
+        int cantidadPiezas = 0;
+        if (gameManager.cartasPiezas.Contains(carta1)) cantidadPiezas++;
+        if (gameManager.cartasPiezas.Contains(carta2)) cantidadPiezas++;
+        if (gameManager.cartasPiezas.Contains(carta3)) cantidadPiezas++;
+        if (carta1.palo == carta2.palo && carta2.palo == carta3.palo)
         {
             tieneFlor = true;
         }
-        else if(gameManager.cartasPiezas.Contains(carta1) && gameManager.cartasPiezas.Contains(carta2))
+        else if (cantidadPiezas >= 2)
         {
             tieneFlor = true;
         }
-        else if(gameManager.cartasPiezas.Contains(carta1) && gameManager.cartasPiezas.Contains(carta3))
-        {
-            tieneFlor = true;
-        }
-        else if(gameManager.cartasPiezas.Contains(carta2) && gameManager.cartasPiezas.Contains(carta3))
+        else if (cantidadPiezas == 1 &&
+            ((gameManager.cartasPiezas.Contains(carta1) && carta2.palo == carta3.palo) ||
+            (gameManager.cartasPiezas.Contains(carta2) && carta1.palo == carta3.palo) ||
+            (gameManager.cartasPiezas.Contains(carta3) && carta1.palo == carta2.palo)))
         {
             tieneFlor = true;
         }
     }
-    private List<CrearCarta> manoActualToCarta()
+    private List<CrearCarta> ManoActualToCarta()
     {
         List<CrearCarta> manoActualCartas = new List<CrearCarta>();
         foreach (var cartaNombre in manoActual)
@@ -61,7 +64,14 @@ public class DatosJugadorServidor
             CrearCarta carta = gameManager.BuscarCartaPorNombre(cartaNombre);
             if(gameManager.cartasPiezas.Contains(carta))
             {
-                puntosFlor += carta.CalcularEnvidoPieza();
+                if (carta.numero == 12)
+                {
+                    puntosFlor += gameManager.cartaMuestra.CalcularEnvidoPieza();
+                }
+                else
+                {
+                    puntosFlor += carta.CalcularEnvidoPieza();
+                } 
             }
             else
             {
@@ -70,9 +80,9 @@ public class DatosJugadorServidor
         }
         return puntosFlor;
     }
-    public int calcularPuntosEnvido()
+    public int CalcularPuntosEnvido()
     {
-        List<CrearCarta> manoActualCartas = manoActualToCarta();
+        List<CrearCarta> manoActualCartas = ManoActualToCarta();
         List<CrearCarta> manoActualOrdenada = manoActualCartas.OrderBy(x => x.valorEnvido).ToList();
         int puntos = 0;
         if (!tieneFlor)
@@ -83,8 +93,17 @@ public class DatosJugadorServidor
                 CrearCarta carta = gameManager.BuscarCartaPorNombre(cartaNombre);
                 if (gameManager.cartasPiezas.Contains(carta))
                 {
-                    puntos += 20;
-                    puntos += carta.CalcularEnvidoPieza();
+                    if(carta.numero == 12)
+                    {
+                        puntos += 20;
+                        puntos += gameManager.cartaMuestra.CalcularEnvidoPieza();
+                    }
+                    else
+                    {
+                        puntos += 20;
+                        puntos += carta.CalcularEnvidoPieza();
+                    }
+                    
                     if (manoActualOrdenada[2] != carta)
                     {
                         puntos += manoActualOrdenada[2].valorEnvido;
@@ -98,9 +117,13 @@ public class DatosJugadorServidor
                 }
             }
             var listaSinPieza = manoActualCartas.GroupBy(x => x.palo).FirstOrDefault(p => p.Count() == 2);
-            puntos = listaSinPieza.Sum(x => x.valorEnvido) + 20;
-            return puntos;
+            if (listaSinPieza != null)
+            {
+                puntos = listaSinPieza.Sum(x => x.valorEnvido) + 20;
+                return puntos;
+            }
         }
-        return manoActualOrdenada[2].valorEnvido;
+        puntos = manoActualOrdenada[2].valorEnvido;
+        return puntos;
     }
 }                                                                           
