@@ -1,16 +1,17 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class TrucoReTruco : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private Button boton;
+    private void Awake()
     {
-        
+        boton = GetComponent<Button>();
+        boton.onClick.AddListener(AlClickear);
     }
-
-    // Update is called once per frame
-    void Update()
+    private void AlClickear()
     {
-        
+        GameManager.Instance.ResponderTrucoRpc(EnumTruco.reTruco);
     }
+}
 }

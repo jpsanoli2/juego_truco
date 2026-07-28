@@ -17,4 +17,4 @@ MonoBehaviour:
   numero: 11
   valorTruco: 6
   valorEnvido: 0
-  arteCarta: {fileID: 2566482072085404073, guid: 294c5e366acd1fc43a69117c3ebded46, type: 3}
+  arteCarta: {fileID: -1893304347612787228, guid: fc2d3a492f372d14eb6b42c33231725f, type: 3}

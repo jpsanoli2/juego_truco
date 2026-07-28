@@ -46,8 +46,14 @@ public class CrearCarta : ScriptableObject
                 
             case 11:
                 return 16;
-                
-        }
+            case 12:
+                if (GameManager.Instance.cartaMuestra.numero == 2) return 19;
+                if (GameManager.Instance.cartaMuestra.numero == 4) return 18;
+                if (GameManager.Instance.cartaMuestra.numero == 5) return 17;
+                if (GameManager.Instance.cartaMuestra.numero == 10) return 15;
+                if (GameManager.Instance.cartaMuestra.numero == 11) return 16;
+                break;
+        }   
         return 0;
     }
 }

@@ -17,6 +17,7 @@ public class ScriptBotones : MonoBehaviour
 
         foreach (Button boton in botones)
         {
+            
             boton.interactable = interactuable;
         }
     }
@@ -26,10 +27,18 @@ public class ScriptBotones : MonoBehaviour
 
         foreach (Button boton in botones)
         {
-            if (boton != botonCalcularEnvido)
-            {
-                boton.interactable = interactuable;
-            }
+            boton.interactable = interactuable;
+        }
+    }
+    public void HabilitadBotonSinEnvido()
+    {
+        Button[] botones = panelBotones.GetComponentsInChildren<Button>();
+
+        foreach (Button boton in botones)
+        {
+            if(boton != botonEnvido && boton != faltaEnvido)
+            boton.interactable = true;
+
         }
     }
     public void DeshabilitadBotonEnvido()
@@ -49,5 +58,9 @@ public class ScriptBotones : MonoBehaviour
                 boton.interactable = interactuable;
             }
         }
+    }
+    public void SetBotonTruco(bool interactuable)
+    {
+        truco.interactable = interactuable;
     }
 }

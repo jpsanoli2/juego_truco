@@ -5175,10 +5175,11 @@ MonoBehaviour:
   carta2UI: {fileID: 698810526}
   carta3: {fileID: 340895891}
   carta3UI: {fileID: 340895894}
-  atrasCarta: {fileID: -7646764583423954679, guid: 18f68b2b2b7117c489ffccfa62695fc5, type: 3}
+  atrasCarta: {fileID: -2515116677670265963, guid: 4ed62c68534aa5445b2f900aa6334bff, type: 3}
   botones: {fileID: 1671567171}
   calcularEnvido: {fileID: 1952832161}
   cantarEnvido: {fileID: 548634576}
+  botonTruco: {fileID: 0}
   cartaJugadaDer: {fileID: 1063479645}
   cartaJugadaIzq: {fileID: 644832008}
   panelFlor: {fileID: 52012029}

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 47604618e21ca10499d7eb84ae07642f
+guid: 2d1daad11e32cd743b10c6a7c84c4e93
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2721677565927973169
-    second: 1_basto_0
+      213: -1526895117906989177
+    second: 1_basto 1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,7 +113,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: 1_basto_0
+      name: 1_basto 1_0
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 131694e735755c520800000000000000
-      internalID: 2721677565927973169
+      spriteID: 78f20e7eaf06fcae0800000000000000
+      internalID: -1526895117906989177
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      1_basto_0: 2721677565927973169
+      1_basto 1_0: -1526895117906989177
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

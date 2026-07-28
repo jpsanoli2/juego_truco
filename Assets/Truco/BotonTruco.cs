@@ -18,4 +18,16 @@ public class BotonTruco : MonoBehaviour
     {
         GameManager.Instance.ProcesarTrucoRpc();
     }
+    public void TextoTruco()
+    {
+        texto.text = "Truco";
+    }
+    public void TextoReTruco()
+    {
+        texto.text = "Re truco";
+    }
+    public void TextoValeCuatro()
+    {
+        texto.text = "Vale cuatro";
+    }
 }

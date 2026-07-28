@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -6,6 +7,8 @@ using TMPro;
 using Unity.Collections;
 using Unity.Netcode;
 using Unity.VisualScripting;
+//using UnityEditor.Timeline.Actions;
+
 
 //using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -30,6 +33,8 @@ public class GameManager : NetworkBehaviour
     [SerializeField] private ScriptBotones botones;
     [SerializeField] private CalcularEnvido calcularEnvido;
     [SerializeField] private CantarEnvido cantarEnvido;
+
+    [SerializeField] private BotonTruco botonTruco;
 
     [SerializeField] private Image cartaJugadaDer;
     [SerializeField] private Image cartaJugadaIzq;
@@ -67,6 +72,7 @@ public class GameManager : NetworkBehaviour
     private int valorTruco = 1;
 
     ulong turno;
+    ulong? tienePalabraTruco = null;
 
     private int puntosHost = 0;
     private int puntosCliente = 0;
@@ -128,8 +134,8 @@ public class GameManager : NetworkBehaviour
         rondaActual++;
         existeFlor = false;
         esperandoRespuesta = false;
-        //turno = listaJugadores[1].clientId;re
 
+        TextoBotonTrucoRpc();
         valorTruco = 1;
         listaJugadores[0].manoActual.Clear();
         listaJugadores[1].manoActual.Clear();
@@ -176,6 +182,7 @@ public class GameManager : NetworkBehaviour
             ulong idOponente = listaJugadores[1].clientId;
             DeshabilitarBotonesSinCalcularEnvidoRpc(NetworkManager.RpcTarget.Single(idOponente, RpcTargetUse.Temp));
             HabilitarBotonesClienteRpc(NetworkManager.RpcTarget.Single(listaJugadores[0].clientId, RpcTargetUse.Temp));
+            
             turno = listaJugadores[0].clientId;
             hostEsMano = false;
 
@@ -244,7 +251,7 @@ public class GameManager : NetworkBehaviour
                 case 12 when carta.palo == cartaMuestra.palo:
                     if (cartaMuestra.numero == 2 || cartaMuestra.numero == 4 || cartaMuestra.numero == 5 || cartaMuestra.numero == 10 || cartaMuestra.numero == 11)
                     {
-                        cartasPiezas.Add(cartaMuestra);
+                        cartasPiezas.Add(carta);
                     }
                     break;
             }
@@ -324,7 +331,21 @@ public class GameManager : NetworkBehaviour
         }
     }
 
-
+    [Rpc(SendTo.ClientsAndHost)]
+    private void TextoBotonTrucoRpc()
+    {
+        botonTruco.TextoTruco();
+    }
+    [Rpc(SendTo.ClientsAndHost)]
+    private void TextoBotonReTrucoRpc()
+    {
+        botonTruco.TextoReTruco();
+    }
+    [Rpc(SendTo.ClientsAndHost)]
+    private void TextoBotonValeCuatroRpc()
+    {
+        botonTruco.TextoValeCuatro();
+    }
     [Rpc(SendTo.SpecifiedInParams)]
     private void RecibirCalculoEnvidoRpc(int puntosResultantes, RpcParams clientRpcParams = default)
     {
@@ -334,6 +355,11 @@ public class GameManager : NetworkBehaviour
     private void DeshabilitarBotonesClienteRpc(RpcParams rpcParams = default)
     {
         botones.SetInteraccionBotones(false);
+    }
+    [Rpc(SendTo.SpecifiedInParams)]
+    private void HabilitadBotonSinEnvidoRpc(RpcParams rpcParams = default)
+    {
+        botones.HabilitadBotonSinEnvido();
     }
     [Rpc(SendTo.SpecifiedInParams)]
     private void DeshabilitarBotonesSinCalcularEnvidoRpc(RpcParams rpcParams = default)
@@ -372,6 +398,8 @@ public class GameManager : NetworkBehaviour
     {
         botones.DeshabilitadBotonEnvido();
     }
+    
+
 
     [Rpc(SendTo.ClientsAndHost)]
     private void HabilitarBotonesTodosLosClientesRpc()
@@ -473,15 +501,23 @@ public class GameManager : NetworkBehaviour
     {
         panelReTruco.OcultarPanel();
     }
+    [Rpc(SendTo.SpecifiedInParams)]
+    private void SetBotonTrucoRpc(bool interactuable, RpcParams rpcParams = default)
+    {
+        botones.SetBotonTruco(interactuable);
+    }
     [Rpc(SendTo.Server)]
     public void ProcesarCantarEnvidoRpc(RpcParams rpcParams = default)
     {
         if (esperandoRespuesta) return;
         if (existeFlor) return;
         if (rondaActual != 1) return;
-        
+        if (envidoJugado) return;
+
         ulong idClienteQueApreto = rpcParams.Receive.SenderClientId;
 
+        if (idClienteQueApreto != turno) return;
+        
         DatosJugadorServidor jugador = listaJugadores.Find(j => j.clientId == idClienteQueApreto);
         esperandoRespuesta = true;
 
@@ -489,6 +525,7 @@ public class GameManager : NetworkBehaviour
 
         envidoJugado = true;
 
+        DeshabilitarBotonEnvidoRpc();
         DeshabilitarBotonesTodosLosClientesRpc();
 
         MostrarPanelPropuestaClienteRpc(NetworkManager.RpcTarget.Single(idOponente, RpcTargetUse.Temp));
@@ -545,8 +582,8 @@ public class GameManager : NetworkBehaviour
                     SumarPuntosRpc(2, "cliente");
                 }
                 OcultarPanelPropuestaClienteRpc(NetworkManager.RpcTarget.Single(idClienteQueApreto, RpcTargetUse.Temp));
-                HabilitarBotonesClienteRpc(NetworkManager.RpcTarget.Single(idOponente, RpcTargetUse.Temp));
-
+                //HabilitarBotonesClienteRpc(NetworkManager.RpcTarget.Single(idOponente, RpcTargetUse.Temp));
+                HabilitadBotonSinEnvidoRpc(NetworkManager.RpcTarget.Single(idOponente, RpcTargetUse.Temp));
                 break;
             case EnumOpcionesEnvido.noQuiero:
                 if (!esperandoRespuesta) return;
@@ -562,7 +599,8 @@ public class GameManager : NetworkBehaviour
                 esperandoRespuesta = false;
                 OcultarPanelPropuestaClienteRpc(NetworkManager.RpcTarget.Single(idClienteQueApreto, RpcTargetUse.Temp));
                 MostrarTextoRpc("No quiero", idClienteQueApreto, "", idOponente);
-                HabilitarBotonesClienteRpc(NetworkManager.RpcTarget.Single(idOponente, RpcTargetUse.Temp));
+                HabilitadBotonSinEnvidoRpc(NetworkManager.RpcTarget.Single(idOponente, RpcTargetUse.Temp));
+                //HabilitarBotones(NetworkManager.RpcTarget.Single(idOponente, RpcTargetUse.Temp));
                 break;
             case EnumOpcionesEnvido.reEnvido:
                 if (!esperandoRespuesta) return;
@@ -970,7 +1008,9 @@ public class GameManager : NetworkBehaviour
             case EnumFaltaEnvido.quiero:
                 esperandoRespuesta = false;
                 OcultarPanelFaltaEnvidoRpc(NetworkManager.RpcTarget.Single(idClienteQueApreto, RpcTargetUse.Temp));
-                HabilitarBotonesClienteRpc(NetworkManager.RpcTarget.Single(idOponente, RpcTargetUse.Temp));
+                //HabilitarBotonesClienteRpc(NetworkManager.RpcTarget.Single(idOponente, RpcTargetUse.Temp));
+                HabilitadBotonSinEnvidoRpc(NetworkManager.RpcTarget.Single(idClienteQueApreto, RpcTargetUse.Temp));
+                DeshabilitarBotonEnvidoRpc();
                 DatosJugadorServidor ganador = ResolverEnvido(jugador1, jugador2);
                 if (ganador != null)
                 {
@@ -1006,7 +1046,7 @@ public class GameManager : NetworkBehaviour
                         }
                         MostrarPuntosEnPantallasRpc(idClienteQueApreto, jugador1.CalcularPuntosEnvido(), idOponente, jugador2.CalcularPuntosEnvido());
                     }
-                    
+                  
                 }
                 else
                 {
@@ -1046,8 +1086,10 @@ public class GameManager : NetworkBehaviour
                 break;
             case EnumFaltaEnvido.noQuiero:
                 esperandoRespuesta = false;
+                DeshabilitarBotonEnvidoRpc();
                 OcultarPanelFaltaEnvidoRpc(NetworkManager.RpcTarget.Single(idClienteQueApreto, RpcTargetUse.Temp));
-                HabilitarBotonesClienteRpc(NetworkManager.RpcTarget.Single(idOponente, RpcTargetUse.Temp));
+                //HabilitarBotonesClienteRpc(NetworkManager.RpcTarget.Single(idOponente, RpcTargetUse.Temp));
+                HabilitadBotonSinEnvidoRpc(NetworkManager.RpcTarget.Single(idClienteQueApreto, RpcTargetUse.Temp));
                 MostrarTextoRpc("No quiero", idClienteQueApreto, "", idOponente);
                 if (idClienteQueApreto == listaJugadores[0].clientId)
                 {
@@ -1073,7 +1115,10 @@ public class GameManager : NetworkBehaviour
         {
             case EnumReEnvido.quiero:
                 esperandoRespuesta = false;
-                OcultarPanelFaltaEnvidoRpc(NetworkManager.RpcTarget.Single(idClienteQueApreto, RpcTargetUse.Temp));
+                envidoJugado = true;
+                OcultarPanelREnvidoRpc(NetworkManager.RpcTarget.Single(idClienteQueApreto, RpcTargetUse.Temp));
+                //HabilitarBotonesClienteRpc(NetworkManager.RpcTarget.Single(idClienteQueApreto, RpcTargetUse.Temp));
+                HabilitadBotonSinEnvidoRpc(NetworkManager.RpcTarget.Single(idClienteQueApreto, RpcTargetUse.Temp));
                 DatosJugadorServidor ganador = ResolverEnvido(jugador1, jugador2);
                 if (ganador != null)
                 {
@@ -1107,7 +1152,10 @@ public class GameManager : NetworkBehaviour
                 break;
             case EnumReEnvido.noQuiero:
                 esperandoRespuesta = false;
-                OcultarPanelFaltaEnvidoRpc(NetworkManager.RpcTarget.Single(idClienteQueApreto, RpcTargetUse.Temp));
+                envidoJugado = true;
+                OcultarPanelREnvidoRpc(NetworkManager.RpcTarget.Single(idClienteQueApreto, RpcTargetUse.Temp));
+                //HabilitarBotonesClienteRpc(NetworkManager.RpcTarget.Single(idClienteQueApreto, RpcTargetUse.Temp));
+                HabilitadBotonSinEnvidoRpc(NetworkManager.RpcTarget.Single(idClienteQueApreto, RpcTargetUse.Temp));
                 MostrarTextoRpc("No quiero", idClienteQueApreto, "", idOponente);
                 if (idClienteQueApreto == listaJugadores[0].clientId)
                 {
@@ -1126,6 +1174,7 @@ public class GameManager : NetworkBehaviour
         if (esperandoRespuesta) return;
         if (existeFlor) return;
         if (rondaActual != 1) return;
+        if (envidoJugado) return;
 
         ulong idClienteQueApreto = rpcParams.Receive.SenderClientId;
 
@@ -1139,7 +1188,7 @@ public class GameManager : NetworkBehaviour
         envidoJugado = true;
 
         DeshabilitarBotonesTodosLosClientesRpc();
-
+        DeshabilitarBotonEnvidoRpc();
         MostrarPanelFaltaEnvidoRpc(NetworkManager.RpcTarget.Single(idOponente, RpcTargetUse.Temp));
     }
     public void CambiarTurno()
@@ -1225,7 +1274,7 @@ public class GameManager : NetworkBehaviour
     {
         ulong idClienteQueApreto = rpcParams.Receive.SenderClientId;
 
-        //if (idClienteQueApreto != turno) return;
+        if (idClienteQueApreto != turno) return;
 
         ulong idOponente = listaJugadores.Find(j => j.clientId != idClienteQueApreto).clientId;
 
@@ -1244,14 +1293,22 @@ public class GameManager : NetworkBehaviour
 
         BorrarCartaManoRpc(carta, NetworkManager.RpcTarget.Single(idClienteQueApreto, RpcTargetUse.Temp));
         BorrarCartaRivalRpc(NetworkManager.RpcTarget.Single(idOponente, RpcTargetUse.Temp));
-
+        DeshabilitarBotonesTodosLosClientesRpc();
+        StartCoroutine(EsperarYHacerAlgo());
         //CambiarTurno();
-        ResolverTrucoRpc();
+        
 
         //HabilitarBotonesClienteRpc(NetworkManager.RpcTarget.Single(idOponente, RpcTargetUse.Temp));
         //DeshabilitarBotonesClienteRpc(NetworkManager.RpcTarget.Single(idClienteQueApreto, RpcTargetUse.Temp));
 
         
+
+    }
+    IEnumerator EsperarYHacerAlgo()
+    {
+        
+        yield return new WaitForSeconds(2f);
+        ResolverTrucoRpc();
 
     }
     [Rpc(SendTo.Server)]
@@ -1260,8 +1317,18 @@ public class GameManager : NetworkBehaviour
         if (cartasJugadas.Count != 2)
         {
             ulong idOponente = listaJugadores.Find(j => j.clientId != turno).clientId;
-            HabilitarBotonesClienteRpc(NetworkManager.RpcTarget.Single(idOponente, RpcTargetUse.Temp));
-            DeshabilitarBotonesClienteRpc(NetworkManager.RpcTarget.Single(turno, RpcTargetUse.Temp));
+            
+
+            if (!envidoJugado)
+            {
+                HabilitarBotonesClienteRpc(NetworkManager.RpcTarget.Single(idOponente, RpcTargetUse.Temp));
+                DeshabilitarBotonesClienteRpc(NetworkManager.RpcTarget.Single(turno, RpcTargetUse.Temp));
+            }
+            else
+            {
+                HabilitadBotonSinEnvidoRpc(NetworkManager.RpcTarget.Single(idOponente, RpcTargetUse.Temp));
+                DeshabilitarBotonesClienteRpc(NetworkManager.RpcTarget.Single(turno, RpcTargetUse.Temp));
+            }
             CambiarTurno();
             return;
         }
@@ -1303,6 +1370,8 @@ public class GameManager : NetworkBehaviour
         }
         else // --- CASO HAY GANADOR DE CARTA ---
         {
+            DeshabilitarBotonesTodosLosClientesRpc();
+            
             if (listaJugadores[0].manoActual.Contains(cartaGanadora.nombre))
             {
                 ganador = listaJugadores[0];
@@ -1353,12 +1422,35 @@ public class GameManager : NetworkBehaviour
     public void ProcesarTrucoRpc(RpcParams rpcParams = default)
     {
         if (esperandoRespuesta) return;
+        
         ulong idClienteQueApreto = rpcParams.Receive.SenderClientId;
+        if (tienePalabraTruco != null && tienePalabraTruco != idClienteQueApreto) return;
         if (idClienteQueApreto != turno) return;
         esperandoRespuesta = true;
         ulong idOponente = listaJugadores.Find(j => j.clientId != idClienteQueApreto).clientId;
         DeshabilitarBotonesTodosLosClientesRpc();
-        MostrarPanelTrucoRpc(NetworkManager.RpcTarget.Single(idOponente, RpcTargetUse.Temp));
+        if(valorTruco == 1)
+        {
+            MostrarPanelTrucoRpc(NetworkManager.RpcTarget.Single(idOponente, RpcTargetUse.Temp));
+            TextoBotonReTrucoRpc();
+            tienePalabraTruco = idOponente;
+            SetBotonTrucoRpc(false, NetworkManager.RpcTarget.Single(idClienteQueApreto, RpcTargetUse.Temp));
+        }
+        else if(valorTruco == 2)
+        {
+            MostrarPanelReTrucoRpc(NetworkManager.RpcTarget.Single(idOponente, RpcTargetUse.Temp));
+            TextoBotonValeCuatroRpc();
+            tienePalabraTruco = idOponente;
+            SetBotonTrucoRpc(false, NetworkManager.RpcTarget.Single(idClienteQueApreto, RpcTargetUse.Temp));
+            SetBotonTrucoRpc(true, NetworkManager.RpcTarget.Single(idOponente, RpcTargetUse.Temp));
+        }
+        else if(valorTruco == 3)
+        {
+            MostrarPanelValeCuatroRpc(NetworkManager.RpcTarget.Single(idOponente, RpcTargetUse.Temp));
+            SetBotonTrucoRpc(false, NetworkManager.RpcTarget.Single(idOponente, RpcTargetUse.Temp));
+            SetBotonTrucoRpc(false, NetworkManager.RpcTarget.Single(idClienteQueApreto, RpcTargetUse.Temp));
+            tienePalabraTruco = idOponente;
+        }
     }
 
     [Rpc(SendTo.Server)]
@@ -1398,12 +1490,13 @@ public class GameManager : NetworkBehaviour
         BorrarCartasTrucoRpc();
         EmpezarNuevaRonda();
     }
+    
     [Rpc(SendTo.Server)]
     public void ResponderTrucoRpc(EnumTruco respuesta, RpcParams rpcParams = default)
     {
         ulong idClienteQueApreto = rpcParams.Receive.SenderClientId;
         ulong idOponente = listaJugadores.Find(j => j.clientId != idClienteQueApreto).clientId;
-
+       
         switch (respuesta)
         {
             case EnumTruco.quiero:
@@ -1440,6 +1533,8 @@ public class GameManager : NetworkBehaviour
                 HabilitarBotonesClienteRpc(NetworkManager.RpcTarget.Single(idOponente, RpcTargetUse.Temp));
                 BorrarCartasTrucoRpc();
                 EmpezarNuevaRonda();
+                break;
+            case EnumTruco.reTruco:
                 break;
         }
     }
