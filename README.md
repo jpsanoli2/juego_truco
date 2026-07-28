@@ -31,6 +31,7 @@
 
 ## 🛠️ Arquitectura y Aspectos Técnicos
 
+```text
 El juego es un proyecto Universal 2D, creado en Unity, programado en C#.
 Es un juego MultiJugador (exclusivamente pensando para 2 jugadores (1vs1)).
 Utilicé el asset oficial de Unity llamado: Unity Building Block - Multiplayer Session para que, con un sistema de códigos se puedan unir ambos
