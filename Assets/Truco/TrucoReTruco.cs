@@ -14,4 +14,4 @@ public class TrucoReTruco : MonoBehaviour
         GameManager.Instance.ResponderTrucoRpc(EnumTruco.reTruco);
     }
 }
-}
+

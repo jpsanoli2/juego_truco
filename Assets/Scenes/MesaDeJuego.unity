@@ -5179,7 +5179,7 @@ MonoBehaviour:
   botones: {fileID: 1671567171}
   calcularEnvido: {fileID: 1952832161}
   cantarEnvido: {fileID: 548634576}
-  botonTruco: {fileID: 0}
+  botonTruco: {fileID: 2120820106}
   cartaJugadaDer: {fileID: 1063479645}
   cartaJugadaIzq: {fileID: 644832008}
   panelFlor: {fileID: 52012029}
@@ -15594,7 +15594,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90a1fa70f70ef504ab2508b88a4808d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  texto: {fileID: 0}
+  texto: {fileID: 1496796703}
 --- !u!1 &2143421693
 GameObject:
   m_ObjectHideFlags: 0
