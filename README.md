@@ -11,7 +11,7 @@
 
 | Gameplay Principal | Mecánica Clave / Menú |
 | :---: | :---: |
-| ![GIF de Gameplay](link-a-tu-gif-o-imagen.gif) | ![Captura de Pantalla](link-a-tu-imagen.png) |
+| ![Video de Gameplay](https://github.com/jpsanoli2/juego_truco/blob/main/Assets/mediagh/videoTruco.mp4) | ![Captura de Pantalla](https://github.com/jpsanoli2/juego_truco/blob/main/Assets/mediagh/captura.png) |
 ---
 
 📥 **[Descargar Ejecutable (.exe)](https://drive.google.com/drive/folders/1ZOi0_-7c7m3oGlcdn2emeynQiL90WGZw?usp=sharing)**
